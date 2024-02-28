@@ -10,7 +10,7 @@ type SpecParameter struct {
 	In   string `json:"in" yaml:"in"`
 	Name string `json:"name" yaml:"name"`
 	Desc string `json:"description" yaml:"description"`
-	Ref  string `json:"$ref" yaml:"$ref"` // ref to def
+	Ref  string `json:"$ref" yaml:"$ref"` // ref to def, not supported yet
 }
 
 type SpecPath map[string]struct {
@@ -25,17 +25,7 @@ type Spec struct {
 	Info     struct {
 		Description string `json:"description" yaml:"description"`
 	} `json:"info" yaml:"info"`
-	Paths   map[string]SpecPath        `json:"paths" yaml:"paths"` // the key is path
-	DefJSON map[string]json.RawMessage `json:"definitions" yaml:"-"`
-	DefYAML map[string]YamlRawMessage  `json:"-" yaml:"definitions"`
-}
-
-// YamlRawMessage from https://github.com/go-yaml/yaml/issues/13#issuecomment-1586325414
-type YamlRawMessage struct{ *yaml.Node }
-
-func (n *YamlRawMessage) UnmarshalYAML(node *yaml.Node) error {
-	n.Node = node
-	return nil
+	Paths map[string]SpecPath `json:"paths" yaml:"paths"` // the key is path
 }
 
 type SpecType int

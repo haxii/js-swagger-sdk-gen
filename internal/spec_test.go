@@ -15,7 +15,12 @@ func TestLoadJSONSpec(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Log(spec.DefJSON)
+	t.Log(spec)
+	swagger, err := LoadSwagger(spec)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(swagger)
 }
 
 func TestLoadYAMLSpec(t *testing.T) {
@@ -28,5 +33,10 @@ func TestLoadYAMLSpec(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Log(spec.DefYAML)
+	t.Log(spec)
+	swagger, err := LoadSwagger(spec)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(swagger)
 }
