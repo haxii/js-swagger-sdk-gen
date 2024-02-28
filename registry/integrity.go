@@ -16,18 +16,18 @@ type Integrity struct {
 }
 
 func MakeIntegrity(reader io.Reader) (*Integrity, error) {
-	h1 := sha1.New()
-	h2 := sha512.New()
-	b64 := &strings.Builder{}
-	b1 := base64.NewEncoder(base64.StdEncoding, b64)
-	_, err := io.Copy(io.MultiWriter(h1, h2, b1), reader)
-	_ = b1.Close()
+	sha1Hash := sha1.New()
+	sha512Hash := sha512.New()
+	b64Result := &strings.Builder{}
+	base64Encoder := base64.NewEncoder(base64.StdEncoding, b64Result)
+	_, err := io.Copy(io.MultiWriter(sha1Hash, sha512Hash, base64Encoder), reader)
+	_ = base64Encoder.Close()
 	if err != nil {
 		return nil, err
 	}
 	return &Integrity{
-		SHASum:    hex.EncodeToString(h1.Sum(nil)),
-		Integrity: "sha512-" + base64.StdEncoding.EncodeToString(h2.Sum(nil)),
-		Base64:    b64.String(),
+		SHASum:    hex.EncodeToString(sha1Hash.Sum(nil)),
+		Integrity: "sha512-" + base64.StdEncoding.EncodeToString(sha512Hash.Sum(nil)),
+		Base64:    b64Result.String(),
 	}, nil
 }
