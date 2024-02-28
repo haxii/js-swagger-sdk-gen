@@ -21,11 +21,20 @@ type SpecPath map[string]struct {
 } // key is method
 
 type Spec struct {
-	Info struct {
+	specType SpecType
+	Info     struct {
 		Description string `json:"description" yaml:"description"`
 	} `json:"info" yaml:"info"`
-	Paths       map[string]SpecPath        `json:"paths" yaml:"paths"` // the key is path
-	Definitions map[string]json.RawMessage `json:"definitions" yaml:"definitions"`
+	Paths   map[string]SpecPath        `json:"paths" yaml:"paths"` // the key is path
+	DefJSON map[string]json.RawMessage `json:"definitions" yaml:"-"`
+	DefYAML map[string]YamlRawMessage  `json:"-" yaml:"definitions"`
+}
+
+type YamlRawMessage struct{ *yaml.Node }
+
+func (n *YamlRawMessage) UnmarshalYAML(node *yaml.Node) error {
+	n.Node = node
+	return nil
 }
 
 type SpecType int
@@ -45,5 +54,6 @@ func LoadSpec(reader io.Reader, t SpecType) (spec *Spec, err error) {
 		d := yaml.NewDecoder(reader)
 		err = d.Decode(spec)
 	}
+	spec.specType = t
 	return
 }
