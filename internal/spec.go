@@ -30,6 +30,7 @@ type Spec struct {
 	DefYAML map[string]YamlRawMessage  `json:"-" yaml:"definitions"`
 }
 
+// YamlRawMessage from https://github.com/go-yaml/yaml/issues/13#issuecomment-1586325414
 type YamlRawMessage struct{ *yaml.Node }
 
 func (n *YamlRawMessage) UnmarshalYAML(node *yaml.Node) error {
