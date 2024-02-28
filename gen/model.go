@@ -74,6 +74,7 @@ func LoadSwagger(spec *Spec) (s *Swagger, err error) {
 				Comment:     comment,
 				OperationID: pathInfo.OperationId,
 				APIMethodUC: strings.ToUpper(method),
+				APIMethodLC: strings.ToLower(method),
 				APIPath:     path,
 				Parameters:  make([]Parameter, 0),
 			}

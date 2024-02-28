@@ -2,6 +2,7 @@ package gen
 
 import (
 	"net/http"
+	"os"
 	"testing"
 )
 
@@ -21,6 +22,7 @@ func TestLoadJSONSpec(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Log(swagger)
+	pkgTmpl.Execute(os.Stdout, swagger)
 }
 
 func TestLoadYAMLSpec(t *testing.T) {
@@ -39,4 +41,11 @@ func TestLoadYAMLSpec(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Log(swagger)
+	swagger.JSPackage.CommonJS = true
+	indexTmpl.Execute(os.Stdout, swagger)
+}
+
+func TestEmbed(t *testing.T) {
+	t.Log(string(indexTmplSrc))
+	t.Log(string(pkgTmplSrc))
 }
