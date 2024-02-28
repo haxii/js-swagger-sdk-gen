@@ -11,8 +11,10 @@ type VersionDist struct {
 type PublishAttachments struct {
 	ContentType string `json:"content_type"` // application/octet-stream
 	Data        string `json:"data"`         // b64 encoded tar
-	Length      int    `json:"length"`       // tar size
+	Length      int64  `json:"length"`       // tar size
 }
+
+type rawMessage map[string]json.RawMessage
 
 type PublishInfo struct {
 	Name        string `json:"name"`
@@ -20,6 +22,6 @@ type PublishInfo struct {
 	DistTags    struct {
 		Latest string `json:"latest"`
 	} `json:"dist-tags"`
-	Versions    map[string]json.RawMessage    `json:"versions"`     // key is version
+	Versions    map[string]rawMessage         `json:"versions"`     // key is version
 	Attachments map[string]PublishAttachments `json:"_attachments"` // key is tar name
 }
