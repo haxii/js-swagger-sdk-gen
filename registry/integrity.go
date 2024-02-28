@@ -13,6 +13,7 @@ type Integrity struct {
 	SHASum    string `json:"shasum"`
 	Integrity string `json:"integrity"`
 	Base64    string `json:"base_64"`
+	Length    int64  `json:"length"`
 }
 
 func MakeIntegrity(reader io.Reader) (*Integrity, error) {
@@ -20,7 +21,7 @@ func MakeIntegrity(reader io.Reader) (*Integrity, error) {
 	sha512Hash := sha512.New()
 	b64Result := &strings.Builder{}
 	base64Encoder := base64.NewEncoder(base64.StdEncoding, b64Result)
-	_, err := io.Copy(io.MultiWriter(sha1Hash, sha512Hash, base64Encoder), reader)
+	size, err := io.Copy(io.MultiWriter(sha1Hash, sha512Hash, base64Encoder), reader)
 	_ = base64Encoder.Close()
 	if err != nil {
 		return nil, err
@@ -29,5 +30,6 @@ func MakeIntegrity(reader io.Reader) (*Integrity, error) {
 		SHASum:    hex.EncodeToString(sha1Hash.Sum(nil)),
 		Integrity: "sha512-" + base64.StdEncoding.EncodeToString(sha512Hash.Sum(nil)),
 		Base64:    b64Result.String(),
+		Length:    size,
 	}, nil
 }

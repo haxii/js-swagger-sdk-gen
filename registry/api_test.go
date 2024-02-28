@@ -22,5 +22,5 @@ func TestMakeIntegrity(t *testing.T) {
 	if integrity.SHASum != "ef0559393baacfd0951c184fbdbaaaab0abaf0e9" {
 		t.Fatal("invalid shasum")
 	}
-	t.Log(len(integrity.Base64))
+	t.Log(len(integrity.Base64), integrity.Length)
 }
