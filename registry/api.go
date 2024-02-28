@@ -22,7 +22,8 @@ func NewAPI(u string, token string) (*API, error) {
 	if err != nil {
 		return nil, err
 	}
-	if strings.HasPrefix(token, "Bearer ") {
+	regURL = regURL.JoinPath("/")
+	if !strings.HasPrefix(token, "Bearer ") {
 		token = fmt.Sprintf("Bearer %s", token)
 	}
 	return &API{
@@ -111,7 +112,9 @@ func (api *API) Publish(tarball io.Reader, packageJSON json.RawMessage) error {
 	r, w := io.Pipe()
 	go func() {
 		defer w.Close()
-		if encodeErr := json.NewEncoder(w).Encode(&info); encodeErr != nil {
+		enc := json.NewEncoder(w)
+		enc.SetEscapeHTML(false)
+		if encodeErr := enc.Encode(&info); encodeErr != nil {
 			fmt.Println("fail to encode publish info", err)
 		}
 	}()
@@ -121,8 +124,9 @@ func (api *API) Publish(tarball io.Reader, packageJSON json.RawMessage) error {
 		Method: http.MethodPut,
 		URL:    api.url.JoinPath(pkg.Name),
 		Header: http.Header{
-			"Content-Type":  []string{"application/json"},
-			"Authorization": []string{api.token},
+			"content-type":  []string{"application/json"},
+			"authorization": []string{api.token},
+			"accept":        []string{"*/*"},
 		},
 		Body: r,
 	})
