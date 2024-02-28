@@ -1,4 +1,4 @@
-package internal
+package gen
 
 import (
 	"fmt"
@@ -16,11 +16,22 @@ const (
 	ParameterTypeForm   ParameterType = "formData"
 )
 
+type ParameterName struct {
+	Swagger, JS string
+}
+
+func (p ParameterName) SwaggerVarInPath() string {
+	return fmt.Sprintf("{%s}", p.Swagger)
+}
+
 type Parameter struct {
-	Name     string
-	NormName string // normalized name, in camel case
-	Comment  string
-	Type     ParameterType
+	Name    string
+	Names   []ParameterName // with normalized name, in camel case
+	Comment string
+	Type    ParameterType
+	TypeIs  struct {
+		Header, Path, Query, Body, FormData bool
+	}
 }
 
 type Operation struct {
@@ -33,6 +44,14 @@ type Operation struct {
 }
 
 type Swagger struct {
+	JSPackage struct {
+		Name     string
+		Version  string
+		Author   string
+		License  string
+		CommonJS bool // set to true to output cjs, otherwise ejs
+	}
+
 	Description string
 	Operations  []Operation
 }
@@ -75,12 +94,28 @@ func LoadSwagger(spec *Spec) (s *Swagger, err error) {
 						specParam.Name, op.APIMethodUC, op.APIPath)
 					return
 				}
-				op.Parameters = append(op.Parameters, Parameter{
-					Name:     specParam.Name,
-					NormName: strcase.ToLowerCamel(specParam.Name),
-					Comment:  specParam.Desc,
-					Type:     ParameterType(specParam.In),
-				})
+				p := Parameter{
+					Name:    specParam.Name,
+					Names:   []ParameterName{{Swagger: specParam.Name, JS: strcase.ToLowerCamel(specParam.Name)}},
+					Comment: specParam.Desc,
+					Type:    ParameterType(specParam.In),
+				}
+				if p.Names[0].JS != p.Name {
+					p.Names = append(p.Names, ParameterName{JS: p.Name, Swagger: p.Name})
+				}
+				switch p.Type {
+				case ParameterTypeHeader:
+					p.TypeIs.Header = true
+				case ParameterTypePath:
+					p.TypeIs.Path = true
+				case ParameterTypeQuery:
+					p.TypeIs.Query = true
+				case ParameterTypeBody:
+					p.TypeIs.Body = true
+				case ParameterTypeForm:
+					p.TypeIs.FormData = true
+				}
+				op.Parameters = append(op.Parameters, p)
 			}
 			s.Operations = append(s.Operations, op)
 		}

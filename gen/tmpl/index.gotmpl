@@ -1,0 +1,90 @@
+{{- /*gotype: github.com/haxii/js-swagger-sdk-gen/gen.Swagger*/ -}}
+{{if .JSPackage.CommonJS}}
+    'use strict';
+    Object.defineProperty(exports, '__esModule', { value: true });
+{{end}}
+/* eslint-disable */
+let instance
+let domain = ''
+
+function createAxios(axios){instance=axios}
+function initAxios(axios){instance=axios}
+function getDomain(){return domain}
+function setDomain($domain){domain=$domain}
+function request(method,url,body,queryParameters,form,_config){if(!instance)throw"you need to init this api by passing the axios instance via createAxios";method=method.toLowerCase();const config=_config||{};config.url=url;config.method=method;config.params=queryParameters;if(form&&Object.keys(form).length>0){if(method==="get"){config.params=Object.assign({},config.params,form)}else{const _form=new FormData;Object.keys(form).forEach((key=>{_form.append(key,form[key])}));config.data=_form}}if(body){config.data=body}return instance.request(config)}
+
+{{if .JSPackage.CommonJS}}
+    exports.default = createAxios;
+    exports.getDomain = getDomain;
+    exports.setDomain = setDomain;
+    exports.request = request;
+{{else}}
+    export {createAxios as default, getDomain, setDomain, request};
+{{end}}
+
+{{range .Operations}}
+    /**
+    * {{.Comment}}
+    * request: {{.OperationID}}
+    * path: {{.APIPath}}
+    * method: {{.APIMethodUC}}
+    {{range $ParameterIndex, $Parameter := .Parameters}}
+        {{range $Parameter.Names}}
+            * @param {{.Swagger}} - in {{$Parameter.Type}}: {{$Parameter.Comment}}
+        {{end}}}
+    {{end}}}
+    */
+    const {{.OperationID}} = function(parameters = {}) {
+    const domain = parameters.$domain ? parameters.$domain : getDomain()
+    const config = parameters.$config
+    let path = '{{.APIPath}}'
+    let body
+    let queryParameters = {}
+    let form = {}
+
+    {{range $ParameterIndex, $Parameter := .Parameters}}
+        {{range $Parameter.Names}}
+            {{if $Parameter.TypeIs.Query}}
+                if(parameters['{{.JS}}'] !== undefined) {
+                    queryParameters['{{.JS}}'] = parameters['{{.Swagger}}']
+                }
+            {{end}}
+
+            {{if $Parameter.TypeIs.Path}}
+                path = path.replace('{{.SwaggerVarInPath}}', `${parameters['{{.JS}}']}`)
+            {{end}}
+
+            {{if $Parameter.TypeIs.Body}}
+                if(parameters['{{.JS}}'] !== undefined) {
+                    body = parameters['{{.JS}}']
+                }
+            {{end}}
+
+            {{if $Parameter.TypeIs.FormData}}
+                if(parameters['{{.JS}}'] !== undefined) {
+                    form['{{.Swagger}}'] = parameters['{{.JS}}']
+                }
+            {{end}}
+        {{end}}
+
+    {{end}}}
+
+    if(parameters.$queryParameters) {
+        Object.keys(parameters.$queryParameters).forEach(function(parameterName){
+            queryParameters[parameterName] = parameters.$queryParameters[parameterName]
+        });
+    }
+
+    return request('{{.APIMethodLC}}', domain + path, body, queryParameters, form, config)
+    }
+
+{{end}}
+
+
+{{range .Operations}}
+    {{if $.JSPackage.CommonJS}}
+        exports.{{.OperationID}} = OperationID;
+    {{else}}
+        export {{.OperationID}};
+    {{end}}
+{{end}}
