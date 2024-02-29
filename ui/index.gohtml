@@ -1,0 +1,16 @@
+{{- /*gotype: github.com/haxii/js-swagger-sdk-gen/model.Swagger*/ -}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="{{.Description}}"/>
+    <title>{{.Title}}</title>
+    <link rel="stylesheet" href="{{.UI.CSS}}" />
+</head>
+<body>
+<div id="swagger-ui"></div>
+<script src="{{.UI.BundleJS}}" crossorigin></script>
+<script> window.onload=()=>{window.ui=SwaggerUIBundle({url:"swagger.json",dom_id:"#swagger-ui"})}; </script>
+</body>
+</html>

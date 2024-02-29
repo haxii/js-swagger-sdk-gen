@@ -20,7 +20,7 @@ func init() {
 	var err error
 	indexTmpl, err = template.New("index").Parse(indexTmplSrc)
 	if err != nil {
-		panic(fmt.Errorf("fail to make index.js template with error %s", err))
+		panic(fmt.Errorf("fail to make package index.js template with error %s", err))
 	}
 	pkgTmpl, err = template.New("pkg").Parse(pkgTmplSrc)
 	if err != nil {

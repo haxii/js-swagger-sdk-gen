@@ -1,11 +1,5 @@
 package gen
 
-import (
-	"encoding/json"
-	"gopkg.in/yaml.v3"
-	"io"
-)
-
 type SpecParameter struct {
 	In   string `json:"in" yaml:"in"`
 	Name string `json:"name" yaml:"name"`
@@ -20,14 +14,6 @@ type SpecPath map[string]struct {
 	Parameters  []SpecParameter `json:"parameters" yaml:"parameters"`
 } // key is method
 
-type Spec struct {
-	specType SpecType
-	Info     struct {
-		Description string `json:"description" yaml:"description"`
-	} `json:"info" yaml:"info"`
-	Paths map[string]SpecPath `json:"paths" yaml:"paths"` // the key is path
-}
-
 type SpecType int
 
 const (
@@ -35,16 +21,11 @@ const (
 	SpecTypeYAML
 )
 
-func LoadSpec(reader io.Reader, t SpecType) (spec *Spec, err error) {
-	spec = &Spec{}
-	switch t {
-	case SpecTypeJSON:
-		d := json.NewDecoder(reader)
-		err = d.Decode(spec)
-	case SpecTypeYAML:
-		d := yaml.NewDecoder(reader)
-		err = d.Decode(spec)
-	}
-	spec.specType = t
-	return
+type Spec struct {
+	specType SpecType
+	Info     struct {
+		Title       string `json:"title" yaml:"title"`
+		Description string `json:"description" yaml:"description"`
+	} `json:"info" yaml:"info"`
+	Paths map[string]SpecPath `json:"paths" yaml:"paths"` // the key is path
 }
