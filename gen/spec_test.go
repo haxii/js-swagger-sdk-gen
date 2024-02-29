@@ -46,6 +46,36 @@ func TestLoadYAMLSpec(t *testing.T) {
 	indexTmpl.Execute(os.Stdout, swagger)
 }
 
+func TestGenYAMLSpec(t *testing.T) {
+	b, err := http.Get("https://petstore.swagger.io/v2/swagger.yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer b.Body.Close()
+	spec, err := LoadSpec(b.Body, model.FileTypeYAML)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(spec)
+	swagger, err := LoadSwagger(spec)
+	if err != nil {
+		t.Fatal(err)
+	}
+	swagger.JSPackage.Name = "swagger-v2-pet-store-js-sdk"
+	swagger.JSPackage.License = "ISC"
+	swagger.JSPackage.Author = "HAXII"
+	swagger.JSPackage.Version = "0.0.1"
+
+	target, err := os.Create("/tmp/swagger-v2-pet-store-js-sdk.tgz")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer target.Close()
+	if err = Generate(swagger, target, nil); err != nil {
+		t.Fatal(err)
+	}
+}
+
 func TestEmbed(t *testing.T) {
 	t.Log(indexTmplSrc)
 }

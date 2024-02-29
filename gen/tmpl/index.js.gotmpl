@@ -1,9 +1,9 @@
 {{- /*gotype: github.com/haxii/js-swagger-sdk-gen/model.Swagger*/ -}}
-{{if .JSPackage.CommonJS}}
+/* eslint-disable */
+{{- if .JSPackage.CommonJS }}
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
-{{end}}
-/* eslint-disable */
+{{- end }}
 let instance
 let domain = ''
 
@@ -12,14 +12,14 @@ function getDomain(){return domain}
 function setDomain($domain){domain=$domain}
 function request(method,url,body,queryParameters,form,_config){if(!instance)throw"you need to init this api by passing the axios instance via createAxios";method=method.toLowerCase();const config=_config||{};config.url=url;config.method=method;config.params=queryParameters;if(form&&Object.keys(form).length>0){if(method==="get"){config.params=Object.assign({},config.params,form)}else{const _form=new FormData;Object.keys(form).forEach((key=>{_form.append(key,form[key])}));config.data=_form}}if(body){config.data=body}return instance.request(config)}
 
-{{if .JSPackage.CommonJS}}
+{{- if .JSPackage.CommonJS}}
 exports.default = createAxios;
 exports.getDomain = getDomain;
 exports.setDomain = setDomain;
 exports.request = request;
-{{else}}
+{{- else}}
 export {createAxios as default, getDomain, setDomain, request};
-{{end}}
+{{- end}}
 
 {{range .Operations}}
 /**
