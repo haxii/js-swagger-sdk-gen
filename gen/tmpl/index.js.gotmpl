@@ -42,28 +42,24 @@ const {{.OperationID}} = function(parameters = {}) {
     let form = {}
 
     {{- range $ParameterIndex, $Parameter := .Parameters}}
+    if(parameters['{{.JS}}'] !== undefined) {
         {{- range $Parameter.Names}}
             {{- if $Parameter.TypeIs.Query}}
-    if(parameters['{{.JS}}'] !== undefined) {
         queryParameters['{{.Swagger}}'] = parameters['{{.JS}}']
-    }
             {{- end -}}
 
             {{- if $Parameter.TypeIs.Path}}
-    path = path.replace('{{.SwaggerVarInPath}}', `${parameters['{{.JS}}']}`)
+        path = path.replace('{{.SwaggerVarInPath}}', `${parameters['{{.JS}}']}`)
             {{- end -}}
 
             {{- if $Parameter.TypeIs.Body}}
-    if(parameters['{{.JS}}'] !== undefined) {
         body = parameters['{{.JS}}']
-    }
             {{- end -}}
 
             {{- if $Parameter.TypeIs.FormData}}
-    if(parameters['{{.JS}}'] !== undefined) {
         form['{{.Swagger}}'] = parameters['{{.JS}}']
-    }
             {{- end -}}
+    }
         {{- end}}
     {{- end}}
     if(parameters.$queryParameters) {
