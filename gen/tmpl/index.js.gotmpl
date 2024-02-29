@@ -42,8 +42,8 @@ const {{.OperationID}} = function(parameters = {}) {
     let form = {}
 
     {{- range $ParameterIndex, $Parameter := .Parameters}}
-    if(parameters['{{.JS}}'] !== undefined) {
         {{- range $Parameter.Names}}
+    if(parameters['{{.JS}}'] !== undefined) {
             {{- if $Parameter.TypeIs.Query}}
         queryParameters['{{.Swagger}}'] = parameters['{{.JS}}']
             {{- end -}}

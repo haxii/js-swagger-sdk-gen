@@ -102,7 +102,9 @@ func LoadSwagger(spec *Spec) (s *model.Swagger, err error) {
 	}
 	// sort by operation id asc
 	sort.Slice(s.Operations, func(i, j int) bool {
-		return strings.Compare(s.Operations[i].OperationID, s.Operations[j].OperationID) < 0
+		return strings.Compare(
+			strings.ToLower(s.Operations[i].OperationID),
+			strings.ToLower(s.Operations[j].OperationID)) < 0
 	})
 	return
 }
