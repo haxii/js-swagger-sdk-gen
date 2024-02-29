@@ -47,6 +47,5 @@ func TestLoadYAMLSpec(t *testing.T) {
 }
 
 func TestEmbed(t *testing.T) {
-	t.Log(string(indexTmplSrc))
-	t.Log(string(pkgTmplSrc))
+	t.Log(indexTmplSrc)
 }

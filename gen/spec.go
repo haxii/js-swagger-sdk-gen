@@ -18,7 +18,7 @@ type SpecPath map[string]struct {
 
 type Spec struct {
 	FileType model.FileType
-	Raw      []byte // 源文件
+	Raw      []byte // swagger source file
 	Info     struct {
 		Title       string `json:"title" yaml:"title"`
 		Description string `json:"description" yaml:"description"`

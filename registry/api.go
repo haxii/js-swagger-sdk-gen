@@ -3,6 +3,7 @@ package registry
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/haxii/js-swagger-sdk-gen/model"
 	"io"
 	"net"
 	"net/http"
@@ -41,23 +42,8 @@ func NewAPI(u string, token string) (*API, error) {
 }
 
 type PackageInfo struct {
-	Name        string `json:"name"`
-	Version     string `json:"version"`
-	Description string `json:"description"`
-	// raw message of package info
+	model.PackageJSON
 	raw rawMessage
-}
-
-func (p PackageInfo) ID() string {
-	return fmt.Sprintf("%s-%s", p.Name, p.Version)
-}
-
-func (p PackageInfo) TarName() string {
-	return fmt.Sprintf("%s.tgz", p.ID())
-}
-
-func (p PackageInfo) URL(base *url.URL) string {
-	return base.JoinPath(p.Name, "-", p.TarName()).String()
 }
 
 func ParsePackageInfo(packageJSON json.RawMessage) (*PackageInfo, error) {

@@ -3,14 +3,13 @@ package gen
 import (
 	_ "embed"
 	"fmt"
+	"github.com/haxii/js-swagger-sdk-gen/model"
+	"io"
 	"text/template"
 )
 
 //go:embed tmpl/index.js.gotmpl
 var indexTmplSrc string
-
-//go:embed tmpl/package.json.gotmpl
-var pkgTmplSrc string
 
 var (
 	indexTmpl, pkgTmpl *template.Template
@@ -22,8 +21,8 @@ func init() {
 	if err != nil {
 		panic(fmt.Errorf("fail to make package index.js template with error %s", err))
 	}
-	pkgTmpl, err = template.New("pkg").Parse(pkgTmplSrc)
-	if err != nil {
-		panic(fmt.Errorf("fail to make package.json template with error %s", err))
-	}
+}
+
+func MakeIndex(swag *model.Swagger, w io.Writer) error {
+	return indexTmpl.Execute(w, swag)
 }

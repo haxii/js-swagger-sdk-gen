@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 )
 
-//go:embed index.gohtml
+//go:embed tmpl/index.gohtml
 var indexTmplSrc string
 
 var (
