@@ -1,5 +1,7 @@
 package gen
 
+import "github.com/haxii/js-swagger-sdk-gen/model"
+
 type SpecParameter struct {
 	In   string `json:"in" yaml:"in"`
 	Name string `json:"name" yaml:"name"`
@@ -14,15 +16,9 @@ type SpecPath map[string]struct {
 	Parameters  []SpecParameter `json:"parameters" yaml:"parameters"`
 } // key is method
 
-type SpecType int
-
-const (
-	SpecTypeJSON SpecType = iota
-	SpecTypeYAML
-)
-
 type Spec struct {
-	specType SpecType
+	FileType model.FileType
+	Raw      []byte // 源文件
 	Info     struct {
 		Title       string `json:"title" yaml:"title"`
 		Description string `json:"description" yaml:"description"`

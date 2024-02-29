@@ -1,6 +1,7 @@
 package gen
 
 import (
+	"github.com/haxii/js-swagger-sdk-gen/model"
 	"net/http"
 	"os"
 	"testing"
@@ -12,11 +13,11 @@ func TestLoadJSONSpec(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer b.Body.Close()
-	spec, err := LoadSpec(b.Body, SpecTypeJSON)
+	spec, err := LoadSpec(b.Body, model.FileTypeJSON)
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Log(spec)
+	t.Log(len(spec.Raw))
 	swagger, err := LoadSwagger(spec)
 	if err != nil {
 		t.Fatal(err)
@@ -31,7 +32,7 @@ func TestLoadYAMLSpec(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer b.Body.Close()
-	spec, err := LoadSpec(b.Body, SpecTypeYAML)
+	spec, err := LoadSpec(b.Body, model.FileTypeYAML)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -1,6 +1,7 @@
 package gen
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/haxii/js-swagger-sdk-gen/model"
@@ -10,17 +11,20 @@ import (
 	"strings"
 )
 
-func LoadSpec(reader io.Reader, t SpecType) (spec *Spec, err error) {
+func LoadSpec(reader io.Reader, t model.FileType) (spec *Spec, err error) {
 	spec = &Spec{}
+	b := bytes.Buffer{}
+	r := io.TeeReader(reader, &b)
 	switch t {
-	case SpecTypeJSON:
-		d := json.NewDecoder(reader)
+	case model.FileTypeJSON:
+		d := json.NewDecoder(r)
 		err = d.Decode(spec)
-	case SpecTypeYAML:
-		d := yaml.NewDecoder(reader)
+	case model.FileTypeYAML:
+		d := yaml.NewDecoder(r)
 		err = d.Decode(spec)
 	}
-	spec.specType = t
+	spec.FileType = t
+	spec.Raw = b.Bytes()
 	return
 }
 
@@ -29,6 +33,8 @@ func LoadSwagger(spec *Spec) (s *model.Swagger, err error) {
 		return
 	}
 	s = &model.Swagger{
+		FileType:   spec.FileType,
+		RawContent: spec.Raw,
 		Operations: make([]model.Operation, 0),
 	}
 	s.Description = spec.Info.Description

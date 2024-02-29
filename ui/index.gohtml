@@ -11,6 +11,6 @@
 <body>
 <div id="swagger-ui"></div>
 <script src="{{.UI.BundleJS}}" crossorigin></script>
-<script> window.onload=()=>{window.ui=SwaggerUIBundle({url:"swagger.json",dom_id:"#swagger-ui"})}; </script>
+<script> window.onload=()=>{window.ui=SwaggerUIBundle({url:"{{.FileType.String}}",dom_id:"#swagger-ui"})}; </script>
 </body>
 </html>

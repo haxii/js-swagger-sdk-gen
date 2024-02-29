@@ -57,7 +57,7 @@ type UI struct {
 
 func (u *UI) Norm() {
 	if len(u.CDN) == 0 {
-		u.CDN = UICdnJsCdn
+		u.CDN = UICdnWebStatic
 	}
 	if len(u.Version) == 0 {
 		u.Version = "5.11.8"
@@ -75,6 +75,23 @@ func (u *UI) BundleJS() string {
 	return s
 }
 
+type FileType int
+
+const (
+	FileTypeJSON FileType = iota
+	FileTypeYAML
+)
+
+func (t FileType) String() string {
+	switch t {
+	case FileTypeJSON:
+		return "swagger.json"
+	case FileTypeYAML:
+		return "swagger.yaml"
+	}
+	return ""
+}
+
 type Swagger struct {
 	JSPackage struct {
 		Name     string
@@ -89,4 +106,7 @@ type Swagger struct {
 	Description string
 	Title       string
 	Operations  []Operation
+
+	FileType   FileType
+	RawContent []byte
 }
