@@ -47,7 +47,7 @@ func TestLoadYAMLSpec(t *testing.T) {
 }
 
 func TestGenYAMLSpec(t *testing.T) {
-	b, err := http.Get("https://petstore.swagger.io/v2/swagger.yaml")
+	b, err := http.Get("https://swagger.haxii.com/swagger/jd-asst/latest.yaml")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -61,12 +61,12 @@ func TestGenYAMLSpec(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	swagger.JSPackage.Name = "swagger-v2-pet-store-js-sdk"
+	swagger.JSPackage.Name = "thor-api"
 	swagger.JSPackage.License = "ISC"
 	swagger.JSPackage.Author = "HAXII"
 	swagger.JSPackage.Version = "0.0.1"
 
-	target, err := os.Create("/tmp/swagger-v2-pet-store-js-sdk.tgz")
+	target, err := os.Create("/tmp/thor-api.tgz")
 	if err != nil {
 		t.Fatal(err)
 	}

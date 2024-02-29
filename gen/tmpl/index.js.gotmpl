@@ -45,7 +45,7 @@ const {{.OperationID}} = function(parameters = {}) {
         {{- range $Parameter.Names}}
             {{- if $Parameter.TypeIs.Query}}
     if(parameters['{{.JS}}'] !== undefined) {
-        queryParameters['{{.JS}}'] = parameters['{{.Swagger}}']
+        queryParameters['{{.Swagger}}'] = parameters['{{.JS}}']
     }
             {{- end -}}
 
