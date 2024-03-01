@@ -10,6 +10,7 @@ import (
 	"github.com/iancoleman/strcase"
 	"gopkg.in/yaml.v3"
 	"io"
+	"sort"
 	"strings"
 	"time"
 )
@@ -102,6 +103,12 @@ func LoadSwagger(spec *Spec) (s *model.Swagger, err error) {
 			s.Operations = append(s.Operations, op)
 		}
 	}
+	// sort by operation id asc
+	sort.Slice(s.Operations, func(i, j int) bool {
+		return strings.Compare(
+			strings.ToLower(s.Operations[i].OperationID),
+			strings.ToLower(s.Operations[j].OperationID)) < 0
+	})
 	return
 }
 
