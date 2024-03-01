@@ -69,7 +69,7 @@ func parseOpt() ([]string, error) {
 		os.Exit(0)
 	} else if opt.Verbose {
 		logVer()
-		fmt.Println("use following options to generate npm package")
+		debug("use following options to generate npm package")
 		enc := yaml.NewEncoder(os.Stdout)
 		_ = enc.Encode(opt)
 	}
