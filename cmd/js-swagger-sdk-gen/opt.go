@@ -2,9 +2,12 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"github.com/haxii/js-swagger-sdk-gen/model"
 	"github.com/jessevdk/go-flags"
+	"gopkg.in/yaml.v3"
 	"os"
+	"strings"
 )
 
 type AppOptions struct {
@@ -15,7 +18,7 @@ type AppOptions struct {
 }
 
 type MiscOptions struct {
-	Version bool `long:"version" description:"display application version"`
+	ShowVer bool `long:"version" description:"display application version" json:"-"`
 	Verbose bool `long:"verbose" description:"verbose the output"`
 }
 
@@ -31,21 +34,27 @@ type Options struct {
 	model.PackageInfo
 }
 
-func parseOpt() (*Options, error) {
-	opts := &Options{}
-	parser := flags.NewParser(&opts.AppOptions, flags.Default)
+var (
+	// opt
+	opt *Options
+)
+
+func parseOpt() ([]string, error) {
+	opt = &Options{}
+	parser := flags.NewParser(&opt.AppOptions, flags.Default)
 	parser.ShortDescription = "JavaScript Swagger SDK Generator"
 	parser.LongDescription = "Generate and publish a JavaScript SDK using axios with given swagger v2 specification."
-	if _, err := parser.AddGroup("SDK Package Options", "", &opts.PackageInfo); err != nil {
+	if _, err := parser.AddGroup("SDK Package Options", "", &opt.PackageInfo); err != nil {
 		return nil, err
 	}
-	if _, err := parser.AddGroup("NPM Registry Options", "", &opts.RegistryOptions); err != nil {
+	if _, err := parser.AddGroup("NPM Registry Options", "", &opt.RegistryOptions); err != nil {
 		return nil, err
 	}
-	if _, err := parser.AddGroup("Miscellaneous Options", "", &opts.MiscOptions); err != nil {
+	if _, err := parser.AddGroup("Miscellaneous Options", "", &opt.MiscOptions); err != nil {
 		return nil, err
 	}
-	if _, err := parser.Parse(); err != nil {
+	args, err := parser.Parse()
+	if err != nil {
 		code := 1
 		var fe *flags.Error
 		if errors.As(err, &fe) {
@@ -55,5 +64,31 @@ func parseOpt() (*Options, error) {
 		}
 		os.Exit(code)
 	}
-	return opts, nil
+	if opt.ShowVer {
+		logVer()
+		os.Exit(0)
+	} else if opt.Verbose {
+		logVer()
+		fmt.Println("use following options to generate npm package")
+		enc := yaml.NewEncoder(os.Stdout)
+		_ = enc.Encode(opt)
+	}
+	return args, nil
+}
+
+func log(format string, a ...any) {
+	if !strings.HasSuffix(format, "\n") {
+		format = format + "\n"
+	}
+	fmt.Printf(format, a...)
+}
+
+func debug(format string, a ...any) {
+	if opt.Verbose {
+		log(format, a...)
+	}
+}
+
+func logVer() {
+	log("js-swagger-sdk-gen version %s, build %s\n", Version, Build)
 }
