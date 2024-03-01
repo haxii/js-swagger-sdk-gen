@@ -3,6 +3,7 @@ package model
 import (
 	"fmt"
 	"net/url"
+	"path"
 )
 
 type ParameterType string
@@ -40,73 +41,118 @@ type Operation struct {
 	APIMethodLC string // method lower case
 	APIPath     string
 	Parameters  []Parameter
+
+	Tags         []string
+	HasAPIDocURL bool
+	APIDocURL    string // doc's URL
 }
 
-type UICdn string
+type SwaggerUICdn string
 
 const (
-	UICdnJsCdn     UICdn = "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/"
-	UICdnBootCdn   UICdn = "https://cdn.bootcdn.net/ajax/libs/swagger-ui/"
-	UICdnWebStatic UICdn = "https://cdnjs.webstatic.cn/ajax/libs/swagger-ui/"
+	SwaggerUICdnJsCdn     SwaggerUICdn = "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/"
+	SwaggerUICdnBootCdn   SwaggerUICdn = "https://cdn.bootcdn.net/ajax/libs/swagger-ui/"
+	SwaggerUICdnWebStatic SwaggerUICdn = "https://cdnjs.webstatic.cn/ajax/libs/swagger-ui/"
 )
 
-type UI struct {
+type SwaggerUI struct {
 	Version string
-	CDN     UICdn
+	CDN     SwaggerUICdn
 }
 
-func (u *UI) Norm() {
+func (u *SwaggerUI) Norm() {
 	if len(u.CDN) == 0 {
-		u.CDN = UICdnWebStatic
+		u.CDN = SwaggerUICdnWebStatic
 	}
 	if len(u.Version) == 0 {
 		u.Version = "5.11.8"
 	}
 }
-func (u *UI) CSS() string {
+func (u *SwaggerUI) CSS() string {
 	u.Norm()
 	s, _ := url.JoinPath(string(u.CDN), "/", u.Version, "swagger-ui.css")
 	return s
 }
 
-func (u *UI) BundleJS() string {
+func (u *SwaggerUI) BundleJS() string {
 	u.Norm()
 	s, _ := url.JoinPath(string(u.CDN), "/", u.Version, "swagger-ui-bundle.js")
 	return s
 }
 
-type FileType int
+type SwaggerFileType int
 
 const (
-	FileTypeJSON FileType = iota
-	FileTypeYAML
+	SwaggerFileTypeJSON SwaggerFileType = iota
+	SwaggerFileTypeYAML
 )
 
-func (t FileType) String() string {
+func (t SwaggerFileType) String() string {
 	switch t {
-	case FileTypeJSON:
+	case SwaggerFileTypeJSON:
 		return "swagger.json"
-	case FileTypeYAML:
+	case SwaggerFileTypeYAML:
 		return "swagger.yaml"
 	}
 	return ""
 }
 
+type SwaggerInfo struct {
+	Description string `json:"description" yaml:"description"`
+	Version     string `json:"version" yaml:"version"`
+	Title       string `json:"title" yaml:"title"`
+	Contact     struct {
+		Name  string `json:"name" yaml:"name"` // ext: contact's name
+		Email string `json:"email" yaml:"email"`
+	} `json:"contact" yaml:"contact"`
+	License struct {
+		Name string `json:"name" yaml:"name"`
+	} `json:"license" yaml:"license"`
+	Homepage    string `json:"homepage" yaml:"homepage"`         // ext: swagger UI homepage
+	PackageName string `json:"package_name" yaml:"package-name"` // ext: js package name
+}
+
+type SwaggerGenConf struct {
+	CommonJS        bool // set to true to output cjs, otherwise ejs
+	UrlRefInComment bool // set swagger UI deep link url in js comment, like https://petstore.swagger.io/#/pet/getPetById
+}
+
 type Swagger struct {
-	JSPackage struct {
-		Name     string
-		Version  string
-		Author   string
-		License  string
-		CommonJS bool // set to true to output cjs, otherwise ejs
-	}
+	JSPackage PackageInfo
+	GenConf   SwaggerGenConf
 
-	UI UI
+	UI       SwaggerUI
+	Info     SwaggerInfo
+	FileType SwaggerFileType
 
-	Description string
-	Title       string
-	Operations  []Operation
+	Operations []Operation
 
-	FileType   FileType
 	RawContent []byte
+}
+
+// SetUrlRefInComment set UrlRefInComment in Swagger.GenConf as true and
+func (swag *Swagger) SetUrlRefInComment() error {
+	swag.GenConf.UrlRefInComment = true
+	homepage := swag.Info.Homepage
+	if len(homepage) == 0 {
+		homepage = swag.JSPackage.Homepage
+	}
+	if len(homepage) == 0 {
+		return nil
+	}
+	baseURL, err := url.Parse(homepage)
+	if err != nil {
+		return err
+	}
+	baseURL = baseURL.JoinPath("/")
+	for i, op := range swag.Operations {
+		swag.Operations[i].HasAPIDocURL = true
+		tag := "default"
+		if len(op.Tags) > 0 {
+			tag = op.Tags[0]
+		}
+		baseURL.Fragment = path.Join(tag, op.OperationID)
+		swag.Operations[i].APIDocURL = baseURL.String()
+	}
+	return nil
 }

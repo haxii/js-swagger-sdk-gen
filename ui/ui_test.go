@@ -7,10 +7,12 @@ import (
 
 func TestMakeUI(t *testing.T) {
 	if err := MakeUI(&model.Swagger{
-		Description: `desc with "" in content`,
-		Title:       `title`,
-		FileType:    model.FileTypeJSON,
-		RawContent:  []byte(`{"content":"swagger raw content"}`),
+		Info: model.SwaggerInfo{
+			Description: `desc with "" in content`,
+			Title:       "title",
+		},
+		FileType:   model.SwaggerFileTypeJSON,
+		RawContent: []byte(`{"content":"swagger raw content"}`),
 	}, "/tmp/swagger-ui"); err != nil {
 		t.Fatal(err)
 	}

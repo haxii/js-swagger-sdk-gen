@@ -14,15 +14,15 @@ import (
 	"time"
 )
 
-func LoadSpec(reader io.Reader, t model.FileType) (spec *Spec, err error) {
+func LoadSpec(reader io.Reader, t model.SwaggerFileType) (spec *Spec, err error) {
 	spec = &Spec{}
 	b := bytes.Buffer{}
 	r := io.TeeReader(reader, &b)
 	switch t {
-	case model.FileTypeJSON:
+	case model.SwaggerFileTypeJSON:
 		d := json.NewDecoder(r)
 		err = d.Decode(spec)
-	case model.FileTypeYAML:
+	case model.SwaggerFileTypeYAML:
 		d := yaml.NewDecoder(r)
 		err = d.Decode(spec)
 	}
@@ -40,13 +40,15 @@ func LoadSwagger(spec *Spec) (s *model.Swagger, err error) {
 		RawContent: spec.Raw,
 		Operations: make([]model.Operation, 0),
 	}
-	s.Description = spec.Info.Description
-	s.Title = spec.Info.Title
+	s.Info = spec.Info
 	for path, pathInfoMap := range spec.Paths {
 		for method, pathInfo := range pathInfoMap {
 			comment := pathInfo.Summary
-			if len(comment) == 0 {
-				comment = pathInfo.Description
+			if len(pathInfo.Description) > 0 && comment != pathInfo.Description { // longest as comment
+				if len(comment) > 0 {
+					comment = comment + ". "
+				}
+				comment += pathInfo.Description
 			}
 			op := model.Operation{
 				Comment:     comment,
@@ -54,6 +56,7 @@ func LoadSwagger(spec *Spec) (s *model.Swagger, err error) {
 				APIMethodUC: strings.ToUpper(method),
 				APIMethodLC: strings.ToLower(method),
 				APIPath:     path,
+				Tags:        pathInfo.Tags,
 				Parameters:  make([]model.Parameter, 0),
 			}
 			if len(op.OperationID) == 0 {
@@ -146,7 +149,9 @@ func writeTarFile(w *tar.Writer, name string, f func(round int, _w io.Writer) er
 // if pw is not null, a copy of package.json will write into it for future usage
 func Generate(swag *model.Swagger, w, pw io.Writer) error {
 	pkg := &model.PackageJSON{}
-	pkg.FromSwagger(swag)
+	if err := pkg.FromSwagger(swag); err != nil {
+		return err
+	}
 
 	gw := gzip.NewWriter(w)
 	defer gw.Close()
@@ -171,7 +176,7 @@ func Generate(swag *model.Swagger, w, pw io.Writer) error {
 	}
 
 	// common js
-	swag.JSPackage.CommonJS = true
+	swag.GenConf.CommonJS = true
 	if err := writeTarFile(tw, "package/index.js", func(_ int, _w io.Writer) error {
 		return MakeIndex(swag, _w)
 	}); err != nil {
@@ -179,7 +184,7 @@ func Generate(swag *model.Swagger, w, pw io.Writer) error {
 	}
 
 	// es module file
-	swag.JSPackage.CommonJS = false
+	swag.GenConf.CommonJS = false
 	if err := writeTarFile(tw, "package/index.m.js", func(_ int, _w io.Writer) error {
 		return MakeIndex(swag, _w)
 	}); err != nil {

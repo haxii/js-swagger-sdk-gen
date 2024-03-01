@@ -13,15 +13,13 @@ type SpecPath map[string]struct {
 	Description string          `json:"description" yaml:"description"`
 	Summary     string          `json:"summary" yaml:"summary"`
 	OperationId string          `json:"operationId" yaml:"operationId"`
+	Tags        []string        `json:"tags" yaml:"tags"`
 	Parameters  []SpecParameter `json:"parameters" yaml:"parameters"`
 } // key is method
 
 type Spec struct {
-	FileType model.FileType
-	Raw      []byte // swagger source file
-	Info     struct {
-		Title       string `json:"title" yaml:"title"`
-		Description string `json:"description" yaml:"description"`
-	} `json:"info" yaml:"info"`
-	Paths map[string]SpecPath `json:"paths" yaml:"paths"` // the key is path
+	FileType model.SwaggerFileType
+	Raw      []byte              // swagger source file
+	Info     model.SwaggerInfo   `json:"info" yaml:"info"`
+	Paths    map[string]SpecPath `json:"paths" yaml:"paths"` // the key is path
 }

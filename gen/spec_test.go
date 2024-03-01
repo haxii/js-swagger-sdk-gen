@@ -13,7 +13,7 @@ func TestLoadJSONSpec(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer b.Body.Close()
-	spec, err := LoadSpec(b.Body, model.FileTypeJSON)
+	spec, err := LoadSpec(b.Body, model.SwaggerFileTypeJSON)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -32,7 +32,7 @@ func TestLoadYAMLSpec(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer b.Body.Close()
-	spec, err := LoadSpec(b.Body, model.FileTypeYAML)
+	spec, err := LoadSpec(b.Body, model.SwaggerFileTypeYAML)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -42,17 +42,17 @@ func TestLoadYAMLSpec(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Log(swagger)
-	swagger.JSPackage.CommonJS = true
+	swagger.GenConf.CommonJS = true
 	indexTmpl.Execute(os.Stdout, swagger)
 }
 
 func TestGenYAMLSpec(t *testing.T) {
-	b, err := http.Get("https://swagger.haxii.com/swagger/jd-asst/latest.yaml")
+	b, err := http.Get("https://petstore.swagger.io/v2/swagger.yaml")
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer b.Body.Close()
-	spec, err := LoadSpec(b.Body, model.FileTypeYAML)
+	spec, err := LoadSpec(b.Body, model.SwaggerFileTypeYAML)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -61,12 +61,13 @@ func TestGenYAMLSpec(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	swagger.JSPackage.Name = "thor-api"
-	swagger.JSPackage.License = "ISC"
-	swagger.JSPackage.Author = "HAXII"
-	swagger.JSPackage.Version = "0.0.1"
+	swagger.JSPackage.Name = "swagger-api"
+	swagger.JSPackage.Homepage = "https://petstore.swagger.io/"
+	//if err = swagger.SetUrlRefInComment(); err != nil {
+	//	t.Fatal(err)
+	//}
 
-	target, err := os.Create("/tmp/thor-api.tgz")
+	target, err := os.Create("/tmp/swagger-api.tgz")
 	if err != nil {
 		t.Fatal(err)
 	}

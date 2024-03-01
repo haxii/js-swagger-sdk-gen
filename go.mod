@@ -4,5 +4,6 @@ go 1.22.0
 
 require (
 	github.com/iancoleman/strcase v0.3.0
+	golang.org/x/mod v0.15.0
 	gopkg.in/yaml.v3 v3.0.1
 )
