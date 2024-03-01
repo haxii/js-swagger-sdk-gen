@@ -24,7 +24,7 @@ type MiscOptions struct {
 
 type RegistryOptions struct {
 	URL   string `long:"registry-url" env:"NPM_REGISTRY_URL" description:"npm registry url to publish the SDK, default from .npmrc"`
-	Token string `long:"registry-token" env:"NPM_REGISTRY_TOKEN"  description:"npm registry token to publish the SDK, default from .npmrc"`
+	Token string `long:"registry-token" env:"NPM_REGISTRY_TOKEN" description:"npm registry token to publish the SDK, default from .npmrc" yaml:"-" json:"-"`
 }
 
 type Options struct {

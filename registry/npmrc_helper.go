@@ -31,13 +31,7 @@ func GetDefaultNpmRC() (*DefaultNpmRc, error) {
 	if len(d.URL) == 0 {
 		return nil, errors.New("default registry not found in .npmrc")
 	}
-	for _, rc := range rcs {
-		for _, token := range rc.Tokens {
-			if strings.HasSuffix(d.URL, token.URL) {
-				d.Token = token.Token
-			}
-		}
-	}
+	d.Token = FindToken(d.URL, rcs)
 	return d, nil
 }
 
@@ -93,7 +87,7 @@ func ParseNpmRc(p string) (*NpmRC, error) {
 	for _, section := range iniFile.Sections() {
 		for _, key := range section.Keys() {
 			if key.Name() == "registry" {
-				rc.DefaultURL = normRegURL(key.Value())
+				rc.DefaultURL = NormRegURL(key.Value())
 			} else if strings.HasPrefix(key.Value(), "_authToken") {
 				type authToken struct {
 					Token string `ini:"_authToken"`
@@ -103,7 +97,7 @@ func ParseNpmRc(p string) (*NpmRC, error) {
 					continue
 				}
 				rc.Tokens = append(rc.Tokens, NpmRCToken{
-					URL:   normRegURL(key.Name()),
+					URL:   NormRegURL(key.Name()),
 					Token: t.Token,
 				})
 			}
@@ -112,8 +106,20 @@ func ParseNpmRc(p string) (*NpmRC, error) {
 	return rc, nil
 }
 
-// normRegURL make sure reg url has a `/` suffix
-func normRegURL(u string) string {
+func FindToken(regURL string, rcs []*NpmRC) string {
+	regURL = NormRegURL(regURL)
+	for _, rc := range rcs {
+		for _, token := range rc.Tokens {
+			if strings.HasSuffix(regURL, token.URL) {
+				return token.Token
+			}
+		}
+	}
+	return ""
+}
+
+// NormRegURL make sure reg url has a `/` suffix
+func NormRegURL(u string) string {
 	if strings.HasSuffix(u, "/") {
 		return u
 	}
