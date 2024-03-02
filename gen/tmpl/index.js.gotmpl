@@ -14,11 +14,12 @@ function request(method,url,body,queryParameters,form,_config){if(!instance)thro
 
 {{- if .GenConf.CommonJS}}
 exports.default = createAxios;
+exports.createAxios = createAxios;
 exports.getDomain = getDomain;
 exports.setDomain = setDomain;
 exports.request = request;
 {{- else}}
-export {createAxios as default, getDomain, setDomain, request};
+export {createAxios as default, createAxios, getDomain, setDomain, request};
 {{- end}}
 
 {{range .Operations}}
