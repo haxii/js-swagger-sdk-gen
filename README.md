@@ -17,6 +17,8 @@ in this example
 - `-v` indicates the package version should be v1.0.9
 - `-p` tells the command to publish to you default registry using the settings in `.npmrc`
 
+you can try this generated pet store package at https://www.npmjs.com/package/pet-store-api
+
 ## Features
 
 - swagger's OperationID as function name in the generated code, support both commonJS and ES module
