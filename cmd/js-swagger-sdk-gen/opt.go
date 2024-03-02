@@ -14,7 +14,7 @@ type AppOptions struct {
 	File    string `short:"f" long:"file" default:"./swagger.json" description:"swagger file, support both local and remote json/yaml files"`
 	Target  string `short:"t" long:"target"  default:"./" description:"target dir to generate the SDK"`
 	Publish bool   `short:"p" long:"publish"  description:"publish to the registry directly, if set, the tarball will not write to the target dir"`
-	GenUI   string `long:"ui"  description:"generate swagger ui to this dir for distribution"`
+	UIDir   string `long:"ui"  description:"generate swagger ui to this dir for distribution"`
 }
 
 type MiscOptions struct {

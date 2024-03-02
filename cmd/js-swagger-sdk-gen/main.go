@@ -4,6 +4,8 @@ import (
 	"github.com/haxii/js-swagger-sdk-gen/gen"
 	"github.com/haxii/js-swagger-sdk-gen/model"
 	"github.com/haxii/js-swagger-sdk-gen/registry"
+	"github.com/haxii/js-swagger-sdk-gen/ui"
+	"gopkg.in/yaml.v3"
 	"io"
 	"net/http"
 	"os"
@@ -21,16 +23,31 @@ func main() {
 	if _, err := parseOpt(); err != nil {
 		fatal("fail to parse command options with error %s", err)
 	}
+
 	// validate publish options first
 	if opt.Publish {
 		fillRegistryToken()
 	}
+
 	// parse swagger
 	swag, err := parseSwagger()
 	if err != nil {
 		fatal("fail to parse swagger with error %s", err)
 	}
 	swag.JSPackage = opt.PackageInfo
+	if opt.Verbose {
+		debug("find following swagger info")
+		enc := yaml.NewEncoder(os.Stdout)
+		_ = enc.Encode(swag.Info)
+	}
+
+	// generate ui
+	if len(opt.UIDir) > 0 {
+		if err = makeSwaggerUI(swag); err != nil {
+			fatal("fail to make swagger ui to %s with error %s", opt.UIDir, err)
+		}
+		log("swagger ui files generated to %s", opt.UIDir)
+	}
 }
 
 func parseSwagger() (*model.Swagger, error) {
@@ -61,6 +78,14 @@ func parseSwagger() (*model.Swagger, error) {
 	} else {
 		return gen.LoadSwagger(spec)
 	}
+}
+
+func makeSwaggerUI(swag *model.Swagger) error {
+	debug("generate swagger ui to folder %s", opt.UIDir)
+	if err := os.MkdirAll(opt.UIDir, 0755); err != nil {
+		return err
+	}
+	return ui.MakeUI(swag, opt.UIDir)
 }
 
 func fillRegistryToken() {
