@@ -19,6 +19,22 @@ in this example
 
 you can try this generated pet store package at https://www.npmjs.com/package/pet-store-api
 
+following example shows how to use the pet-store-api to get all the pending pets.
+```javascript
+const axios = require("axios");
+const { default: createAxios } = require("pet-store-api");
+const { setDomain, findPetsByStatus } = require("pet-store-api");
+
+// init axios and set domain
+createAxios(axios.default);
+setDomain("https://petstore.swagger.io/v2");
+
+// print all the pending pets
+;(async function () {
+  const pets = await findPetsByStatus({ status: "pending" });
+  console.log(pets?.data);
+})();
+```
 ## Features
 
 - swagger's OperationID as function name in the generated code, support both commonJS and ES module
