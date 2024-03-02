@@ -1,8 +1,13 @@
 package main
 
 import (
+	"github.com/haxii/js-swagger-sdk-gen/gen"
+	"github.com/haxii/js-swagger-sdk-gen/model"
 	"github.com/haxii/js-swagger-sdk-gen/registry"
+	"io"
+	"net/http"
 	"os"
+	"strings"
 )
 
 var (
@@ -13,14 +18,48 @@ var (
 )
 
 func main() {
-	var err error
-	if _, err = parseOpt(); err != nil {
-		log("fail to parse command options with error %s", err)
-		os.Exit(1)
+	if _, err := parseOpt(); err != nil {
+		fatal("fail to parse command options with error %s", err)
 	}
 	// validate publish options first
 	if opt.Publish {
 		fillRegistryToken()
+	}
+	// parse swagger
+	swag, err := parseSwagger()
+	if err != nil {
+		fatal("fail to parse swagger with error %s", err)
+	}
+	swag.JSPackage = opt.PackageInfo
+}
+
+func parseSwagger() (*model.Swagger, error) {
+	var r io.ReadCloser
+	if strings.HasPrefix(opt.AppOptions.File, "http") { // download from internet
+		debug("download from url %s", opt.AppOptions.File)
+		resp, err := http.Get(opt.AppOptions.File)
+		if err != nil {
+			return nil, err
+		}
+		r = resp.Body
+	} else {
+		debug("open local file %s", opt.AppOptions.File)
+		f, err := os.Open(opt.AppOptions.File)
+		if err != nil {
+			return nil, err
+		}
+		r = f
+	}
+	defer r.Close()
+	t := model.SwaggerFileTypeJSON
+	if !strings.HasSuffix(strings.ToLower(opt.AppOptions.File), "json") {
+		t = model.SwaggerFileTypeYAML
+	}
+	debug("the spec should be %s, try to parse it", t)
+	if spec, err := gen.LoadSpec(r, t); err != nil {
+		return nil, err
+	} else {
+		return gen.LoadSwagger(spec)
 	}
 }
 
@@ -29,8 +68,7 @@ func fillRegistryToken() {
 		debug("registry url not provided, try to load from .npmrc")
 		defaultRC, regErr := registry.GetDefaultNpmRC()
 		if regErr != nil {
-			log("fail to parse .npmrc with error %s", regErr)
-			os.Exit(1)
+			fatal("fail to parse .npmrc with error %s", regErr)
 		}
 		debug("find .npmrc {%s} with registry {%s}", defaultRC.Path, defaultRC.URL)
 		opt.RegistryOptions.URL = defaultRC.URL
@@ -42,8 +80,7 @@ func fillRegistryToken() {
 		opt.RegistryOptions.URL = registry.NormRegURL(opt.RegistryOptions.URL)
 		rcs, regErr := registry.GetNpmRC()
 		if regErr != nil {
-			log("fail to parse .npmrc with error %s", regErr)
-			os.Exit(1)
+			fatal("fail to parse .npmrc with error %s", regErr)
 		}
 		opt.RegistryOptions.Token = registry.FindToken(opt.RegistryOptions.URL, rcs)
 	}

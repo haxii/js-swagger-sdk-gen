@@ -14,7 +14,7 @@ type AppOptions struct {
 	File    string `short:"f" long:"file" default:"./swagger.json" description:"swagger file, support both local and remote json/yaml files"`
 	Target  string `short:"t" long:"target"  default:"./" description:"target dir to generate the SDK"`
 	Publish bool   `short:"p" long:"publish"  description:"publish to the registry directly, if set, the tarball will not write to the target dir"`
-	GenUI   bool   `long:"ui"  description:"generate swagger ui distribution folder to target dir"`
+	GenUI   string `long:"ui"  description:"generate swagger ui to this dir for distribution"`
 }
 
 type MiscOptions struct {
@@ -87,6 +87,14 @@ func debug(format string, a ...any) {
 	if opt.Verbose {
 		log(format, a...)
 	}
+}
+
+func fatal(format string, a ...any) {
+	if !strings.HasSuffix(format, "\n") {
+		format = format + "\n"
+	}
+	fmt.Fprintf(os.Stderr, format, a...)
+	os.Exit(1)
 }
 
 func logVer() {
