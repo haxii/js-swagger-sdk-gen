@@ -32,7 +32,7 @@ func LoadSpec(reader io.Reader, t model.SwaggerFileType) (spec *Spec, err error)
 	return
 }
 
-func LoadSwagger(spec *Spec) (s *model.Swagger, err error) {
+func LoadSwagger(pkgConf model.PackageInfo, spec *Spec) (s *model.Swagger, err error) {
 	if spec == nil {
 		return
 	}
@@ -109,6 +109,9 @@ func LoadSwagger(spec *Spec) (s *model.Swagger, err error) {
 			strings.ToLower(s.Operations[i].OperationID),
 			strings.ToLower(s.Operations[j].OperationID)) < 0
 	})
+
+	// generate config
+	err = s.PkgJSON.FromSwagger(pkgConf, s)
 	return
 }
 
@@ -139,9 +142,9 @@ func defaultTarHeader(name string, isFolder bool) *tar.Header {
 	return &h
 }
 
-func writeTarFile(w *tar.Writer, name string, f func(round int, _w io.Writer) error) error {
+func writeTarFile(w *tar.Writer, name string, f func(_w io.Writer) error) error {
 	nw := &nopWriter{}
-	if err := f(1, nw); err != nil {
+	if err := f(nw); err != nil {
 		return err
 	}
 	header := defaultTarHeader(name, false)
@@ -149,17 +152,11 @@ func writeTarFile(w *tar.Writer, name string, f func(round int, _w io.Writer) er
 	if err := w.WriteHeader(header); err != nil {
 		return err
 	}
-	return f(2, w)
+	return f(w)
 }
 
-// Generate uses swag to generate a npm tgz file into w,
-// if pw is not null, a copy of package.json will write into it for future usage
-func Generate(swag *model.Swagger, w, pw io.Writer) error {
-	pkg := &model.PackageJSON{}
-	if err := pkg.FromSwagger(swag); err != nil {
-		return err
-	}
-
+// Generate uses swag to generate a npm tgz file into w
+func Generate(swag *model.Swagger, w io.Writer) error {
 	gw := gzip.NewWriter(w)
 	defer gw.Close()
 	tw := tar.NewWriter(gw)
@@ -170,21 +167,18 @@ func Generate(swag *model.Swagger, w, pw io.Writer) error {
 	}
 
 	// package.json
-	if err := writeTarFile(tw, "package/package.json", func(round int, _w io.Writer) error {
-		if round == 1 && pw != nil { // write to pw in 1st round
-			_w = io.MultiWriter(_w, pw)
-		}
+	if err := writeTarFile(tw, "package/package.json", func(_w io.Writer) error {
 		enc := json.NewEncoder(_w)
 		enc.SetEscapeHTML(false)
 		enc.SetIndent("", "  ")
-		return enc.Encode(&pkg)
+		return enc.Encode(&swag.PkgJSON)
 	}); err != nil {
 		return err
 	}
 
 	// common js
 	swag.GenConf.CommonJS = true
-	if err := writeTarFile(tw, "package/index.js", func(_ int, _w io.Writer) error {
+	if err := writeTarFile(tw, "package/index.js", func(_w io.Writer) error {
 		return MakeIndex(swag, _w)
 	}); err != nil {
 		return err
@@ -192,7 +186,7 @@ func Generate(swag *model.Swagger, w, pw io.Writer) error {
 
 	// es module file
 	swag.GenConf.CommonJS = false
-	if err := writeTarFile(tw, "package/index.m.js", func(_ int, _w io.Writer) error {
+	if err := writeTarFile(tw, "package/index.m.js", func(_w io.Writer) error {
 		return MakeIndex(swag, _w)
 	}); err != nil {
 		return err

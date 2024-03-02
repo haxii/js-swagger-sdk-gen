@@ -8,6 +8,7 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -80,6 +81,7 @@ func (api *API) Publish(tarball io.Reader, packageJSON json.RawMessage) error {
 	if pkg.raw["dist"], err = json.Marshal(verDist); err != nil {
 		return err
 	}
+	pkg.raw["_id"] = []byte(strconv.Quote(pkg.NpmID()))
 
 	// build publish info
 	info := PublishInfo{

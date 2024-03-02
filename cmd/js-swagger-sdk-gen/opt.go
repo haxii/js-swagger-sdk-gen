@@ -2,12 +2,10 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"github.com/haxii/js-swagger-sdk-gen/model"
 	"github.com/jessevdk/go-flags"
 	"gopkg.in/yaml.v3"
 	"os"
-	"strings"
 )
 
 type AppOptions struct {
@@ -74,27 +72,6 @@ func parseOpt() ([]string, error) {
 		_ = enc.Encode(opt)
 	}
 	return args, nil
-}
-
-func log(format string, a ...any) {
-	if !strings.HasSuffix(format, "\n") {
-		format = format + "\n"
-	}
-	fmt.Printf(format, a...)
-}
-
-func debug(format string, a ...any) {
-	if opt.Verbose {
-		log(format, a...)
-	}
-}
-
-func fatal(format string, a ...any) {
-	if !strings.HasSuffix(format, "\n") {
-		format = format + "\n"
-	}
-	fmt.Fprintf(os.Stderr, format, a...)
-	os.Exit(1)
 }
 
 func logVer() {

@@ -14,7 +14,7 @@ type PackageInfo struct {
 	Version     string `json:"version" short:"v" long:"pkg-version" description:"sdk version, required, default from swagger's version"`
 	Description string `json:"description" long:"pkg-description" description:"sdk description, default from swagger's info.description"`
 	Author      struct {
-		Name  string `json:"name,omitempty" long:"pkg-author-name" description:"sdk author name, default from swagger's info.contact.name"`
+		Name  string `json:"name" long:"pkg-author-name" description:"sdk author name, default from swagger's info.contact.name"`
 		Email string `json:"email,omitempty" long:"pkg-author-email" description:"sdk author email, default from swagger's info.contact.email"`
 	} `json:"author"`
 	Homepage string `json:"homepage,omitempty" long:"pkg-homepage" description:"sdk homepage, default from swagger's info.homepage"`
@@ -29,8 +29,8 @@ type PackageJSON struct {
 	Keywords []string        `json:"keywords"`
 }
 
-func (p *PackageJSON) FromSwagger(swag *Swagger) error {
-	p.PackageInfo = swag.JSPackage
+func (p *PackageJSON) FromSwagger(pkgConf PackageInfo, swag *Swagger) error {
+	p.PackageInfo = pkgConf
 	// ensure package name
 	if len(p.Name) == 0 {
 		p.Name = swag.Info.PackageName
@@ -69,6 +69,10 @@ func (p *PackageJSON) FromSwagger(swag *Swagger) error {
 	p.Scripts = []byte(`{}`)
 	p.Keywords = []string{"js-swagger-sdk-gen", "axios"}
 	return nil
+}
+
+func (p *PackageJSON) NpmID() string {
+	return fmt.Sprintf("%s@%s", p.Name, p.Version)
 }
 
 func (p *PackageJSON) ID() string {

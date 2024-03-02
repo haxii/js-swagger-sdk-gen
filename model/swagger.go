@@ -118,8 +118,9 @@ type SwaggerGenConf struct {
 }
 
 type Swagger struct {
-	JSPackage PackageInfo
-	GenConf   SwaggerGenConf
+	GenConf SwaggerGenConf // config options
+
+	PkgJSON PackageJSON // lib's package.json
 
 	UI       SwaggerUI
 	Info     SwaggerInfo
@@ -132,11 +133,7 @@ type Swagger struct {
 
 // SetUrlRefInComment set UrlRefInComment in Swagger.GenConf as true and
 func (swag *Swagger) SetUrlRefInComment() error {
-	swag.GenConf.UrlRefInComment = true
-	homepage := swag.Info.Homepage
-	if len(homepage) == 0 {
-		homepage = swag.JSPackage.Homepage
-	}
+	homepage := swag.PkgJSON.Homepage
 	if len(homepage) == 0 {
 		return nil
 	}
@@ -144,6 +141,7 @@ func (swag *Swagger) SetUrlRefInComment() error {
 	if err != nil {
 		return err
 	}
+	swag.GenConf.UrlRefInComment = true
 	baseURL = baseURL.JoinPath("/")
 	for i, op := range swag.Operations {
 		swag.Operations[i].HasAPIDocURL = true

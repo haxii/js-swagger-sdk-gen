@@ -18,7 +18,7 @@ func TestLoadJSONSpec(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Log(len(spec.Raw))
-	swagger, err := LoadSwagger(spec)
+	swagger, err := LoadSwagger(model.PackageInfo{}, spec)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -37,7 +37,7 @@ func TestLoadYAMLSpec(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Log(spec)
-	swagger, err := LoadSwagger(spec)
+	swagger, err := LoadSwagger(model.PackageInfo{}, spec)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -57,22 +57,23 @@ func TestGenYAMLSpec(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Log(spec)
-	swagger, err := LoadSwagger(spec)
+	swagger, err := LoadSwagger(model.PackageInfo{
+		Name:     "swagger-api",
+		Homepage: "https://petstore.swagger.io/",
+	}, spec)
 	if err != nil {
 		t.Fatal(err)
 	}
-	swagger.JSPackage.Name = "swagger-api"
-	swagger.JSPackage.Homepage = "https://petstore.swagger.io/"
-	//if err = swagger.SetUrlRefInComment(); err != nil {
-	//	t.Fatal(err)
-	//}
+	if err = swagger.SetUrlRefInComment(); err != nil {
+		t.Fatal(err)
+	}
 
 	target, err := os.Create("/tmp/swagger-api.tgz")
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer target.Close()
-	if err = Generate(swagger, target, nil); err != nil {
+	if err = Generate(swagger, target); err != nil {
 		t.Fatal(err)
 	}
 }
