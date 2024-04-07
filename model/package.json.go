@@ -10,14 +10,14 @@ import (
 )
 
 type PackageInfo struct {
-	Name        string `json:"name" short:"n" long:"pkg-name" description:"sdk name, required, default from swagger's info.package_name"`
+	Name        string `json:"name" short:"n" long:"pkg-name" description:"sdk name, required, default from swagger's info.x-package-name"`
 	Version     string `json:"version" short:"v" long:"pkg-version" description:"sdk version, required, default from swagger's version"`
 	Description string `json:"description" long:"pkg-description" description:"sdk description, default from swagger's info.description"`
 	Author      struct {
 		Name  string `json:"name" long:"pkg-author-name" description:"sdk author name, default from swagger's info.contact.name"`
 		Email string `json:"email,omitempty" long:"pkg-author-email" description:"sdk author email, default from swagger's info.contact.email"`
 	} `json:"author"`
-	Homepage string `json:"homepage,omitempty" long:"pkg-homepage" description:"sdk homepage, default from swagger's info.homepage"`
+	Homepage string `json:"homepage,omitempty" long:"pkg-homepage" description:"sdk homepage, default from swagger's info.x-homepage"`
 	License  string `json:"license,omitempty" long:"pkg-license" description:"sdk license, default from swagger's info.license"`
 }
 

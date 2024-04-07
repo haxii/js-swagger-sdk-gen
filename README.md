@@ -60,12 +60,12 @@ Application Options:
       --ui=               generate swagger ui to this dir for distribution
 
 SDK Package Options:
-  -n, --pkg-name=         sdk name, required, default from swagger's info.package_name
+  -n, --pkg-name=         sdk name, required, default from swagger's info.x-package-name
   -v, --pkg-version=      sdk version, required, default from swagger's version
       --pkg-description=  sdk description, default from swagger's info.description
       --pkg-author-name=  sdk author name, default from swagger's info.contact.name
       --pkg-author-email= sdk author email, default from swagger's info.contact.email
-      --pkg-homepage=     sdk homepage, default from swagger's info.homepage
+      --pkg-homepage=     sdk homepage, default from swagger's info.x-homepage
       --pkg-license=      sdk license, default from swagger's info.license
 
 NPM Registry Options:

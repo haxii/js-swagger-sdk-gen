@@ -108,8 +108,8 @@ type SwaggerInfo struct {
 	License struct {
 		Name string `json:"name" yaml:"name"`
 	} `json:"license" yaml:"license"`
-	Homepage    string `json:"homepage" yaml:"homepage"`         // ext: swagger UI homepage
-	PackageName string `json:"package_name" yaml:"package-name"` // ext: js package name
+	Homepage    string `json:"x-homepage" yaml:"x-homepage"`       // ext: swagger UI homepage
+	PackageName string `json:"x-package-name" yaml:"package-name"` // ext: js package name
 }
 
 type SwaggerGenConf struct {
